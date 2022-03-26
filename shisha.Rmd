@@ -1,0 +1,34 @@
+---
+title: "Untitled"
+author: "Barche"
+date: '2022-03-22'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#### Manuscrpit analysis
+
+```{r}
+## Importing relevant libraries
+
+pacman::p_load(tidyverse,
+               rio,
+               janitor,
+               gtsummary,
+               flextable,
+               rstatix
+              )
+```
+
+```{r}
+shisha <- import("Sandrine thesis.sav")  #### Importing the dataset using the RIO library
+shisha
+```
+```{r}
+shisha %>% 
+tabyl(Ever_Smoked_shisha)
+```
+
