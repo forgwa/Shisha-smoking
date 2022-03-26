@@ -19,16 +19,187 @@ pacman::p_load(tidyverse,
                janitor,
                gtsummary,
                flextable,
-               rstatix
+               rstatix,
+               skimr,
+               scales,
+               finalfit
+               
               )
 ```
 
 ```{r}
-shisha <- import("Sandrine thesis.sav")  #### Importing the dataset using the RIO library
+shisha <- import("Sandrine thesis.sav", na = c("Missing", "", " ")) #### Importing the dataset using the RIO library
 shisha
 ```
 ```{r}
 shisha %>% 
-tabyl(Ever_Smoked_shisha)
+skim()
+```
+
+
+
+
+```{r}
+shisha <- shisha %>% 
+    mutate(age = Age1,
+           
+           age_category = Age1 %>% 
+               
+                             cut( breaks = c(0, 23, 100)) %>% 
+               fct_recode("<= 23 years" = "(0,23]",
+                          ">23 years" = "(23,100]") %>% 
+               relevel("<= 23 years") %>% 
+               ff_label("Age category"),
+           gender = Gender %>% 
+               factor() %>% 
+               fct_recode("Male" = "0",
+                          "Female" = "1") %>% 
+              
+               relevel("Female") %>% 
+               ff_label("Gender"),
+           
+           
+           smoked_last30 = Haveyousmokedshishainthelast30days %>% 
+               factor() %>% 
+               fct_recode("No" = "0",
+                          "Yes" = "1") %>% 
+               relevel("No") %>% 
+               
+               ff_label("Smoked shisha in the past 30 days"),
+           
+           ever_smoked = Ever_Smoked_shisha %>% factor() %>% 
+                            fct_recode("No" = "0",
+                          "Yes" = "1") %>% 
+               relevel("No") %>% 
+               
+               ff_label("Ever smoked shisha"),
+           
+           Knowledge_score = KnowledgeScore_Categories %>% 
+               factor() %>% 
+               fct_recode("poor knowledge"= "0",
+                          "moderate knowledge" = "1",
+                          "good knowledge" = "2") %>% 
+               relevel("poor knowledge") %>% 
+               ff_label("Knowledge score categories"),
+           
+           level_of_education = Currentlevelofstudy %>% 
+               factor() %>%  fct_recode(
+                                    "first year" = "1",
+                                    "second  year" = "2",
+                                    "third year" = "3",
+                                    "fourth year" = "4",
+                                    "post graduate" = "5" 
+               ) %>% 
+               ff_label("Current level of studies"),
+           
+           adress = Adress %>% factor() %>% fct_recode(
+                                                    "living with family" = "0",
+                                                    "living in a hostel"= 1) %>% 
+               ff_label("Adress"),
+           
+           ms = Maritalstatus3 %>% factor() %>% 
+           
+           fct_recode("single" = "2",
+                      "married" = "1") %>% 
+               relevel("married") %>% 
+               ff_label("Marital status"),
+           
+           religion = Religion2 %>% factor() %>% 
+                                    fct_recode(
+                                        "christian" = "1",
+                                        "muslim" = "2"
+                                    ) %>% 
+               relevel("muslim") %>% ff_label("Religion"),
+           
+           duration_shisha_session = Howlongisashishasession2 %>% 
+               factor() %>% 
+                                fct_recode("1-2 hours" = "1",
+                                           "< 30 mins" = "3",
+                                           "30 - 60 mins" = "2",
+                                           "> 2 hours" = "4") %>% 
+                                    relevel("< 30 mins" ) %>% 
+               ff_label("duration of shisha session"),
+           frequency_shisha_smoking = Frequencyofshishasmoking2 %>% 
+                                    factor() %>% 
+                                    fct_recode("once a year" = "1",
+                                               "every couple of months" = "3",
+                                               "monthly" = "4",
+                                               "weekly" = "2",
+                                               "daily" = "5") %>% 
+               relevel("once a year") %>% 
+               ff_label("Frequency of shisha usage"),
+           
+           monthly_allowance = Medianmonthlyallowance %>%  factor() %>% fct_recode(
+                                                                                "<30000 fcfa" = "0",
+                                                                                "≥30000 fcfa" = "1"
+           ) %>% ff_label("Monthly allowance"),
+           
+           
+           cigarete_smoking = Doyousmokecigarette11 %>% factor() %>% fct_recode(
+                                                                "No" = "0",
+                                                                "Yes" = "1"
+                                                                     ) %>% 
+                            ff_label("Smokes cigarette"),
+           
+           Consumes_alcohol = Doyoudrinkalcohol1  %>% factor() %>% fct_recode(
+                                                                "No" = "0",
+                                                                "Yes" = "1"
+                                                                     ) %>% 
+                            ff_label("Do you drink alcohol"),
+           use_tobaco_products = Doyousmokeanyothertobaccoproductapartfromshishaandcigarette1 %>%  factor() %>% fct_recode(
+                                                                "No" = "0",
+                                                                "Yes" = "1"
+                                                                     ) %>% 
+                            ff_label("Use of other tobaco products"),
+           
+           shisha_apparatus = Doyouhaveashishaapparatus %>%  factor() %>% fct_recode(
+                                                                "No" = "0",
+                                                                "Yes" = "1"
+                                                                     ) %>% 
+                            ff_label("Posses a shisha apparatus"),
+           
+           friends_smoke_shisha = Doesanyofyourfriendssmokeshisha %>%  factor() %>% fct_recode(
+                                                                "No" = "0",
+                                                                "Yes" = "1"
+                                                                     ) %>% 
+                            ff_label("Do any of your friends smoke shisha"),
+           
+           
+           parents_smoke_shisha = Doesanyofyourparentssmokeshisha %>%  factor() %>% fct_recode(
+                                                                "No" = "0",
+                                                                "Yes" = "1"
+                                                                     ) %>% 
+                            ff_label("Does any of your parents smoke shisha")
+                
+               )
+```
+
+```{r}
+
+shisha %>% 
+    
+    select(Sex1, Gender, gender)
+```
+
+
+
+
+
+
+```{r}
+shisha %>% 
+    tabyl(age_category, gender, show_na = FALSE) %>% 
+    adorn_totals(where = "row") %>% 
+    adorn_percentages(denominator = "row") %>% 
+    adorn_pct_formatting(digits = 1) %>% 
+    adorn_ns(position = "front") %>% 
+    adorn_title(
+        row_name = "Age category",
+        col_name = "Gender",
+        placement = "combined") %>% 
+    flextable() %>% 
+    autofit() %>% 
+    save_as_docx(path = "taby.docx")
+
 ```
 
