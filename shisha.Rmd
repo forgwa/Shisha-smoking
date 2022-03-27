@@ -96,6 +96,7 @@ shisha <- shisha %>%
            adress = Adress3 %>% factor() %>% fct_recode(
                                                     "living with family" = "2",
                                                     "living in a hostel"= "1") %>%
+       relevel("living with family") %>% 
                ff_label("Adress"),
 
           ms = Maritalstatus3 %>% factor() %>%
@@ -355,13 +356,62 @@ explanatory_multi <- c(  "gender", "ms", "religion", "adress", "cigarete_smoking
 ```
 
 
+
+```{r}
+?finalfit()
+```
+
+
+
+
+
 ```{r}
 model2 <- shisha %>% 
-    finalfit(dependent, explanatory, explanatory_multi, metrics =  TRUE) 
+    finalfit(dependent, explanatory, explanatory_multi ) 
 
-model2
-    # flextable() %>% 
-    # autofit() %>% 
-    # save_as_docx(path = "model2.docx")
+model2 %>% 
+    flextable() %>%
+    autofit() %>%
+    save_as_docx(path = "model2.docx")
 
 ```
+
+
+```{r}
+shisha %>% 
+    
+    count(Knowledge_score, smoked_last30) %>% 
+    mutate(
+        percent = as.numeric(scales::percent(n/sum(n), suffix = ""))) %>% filter(!is.na(Knowledge_score)) %>% 
+    
+    ggplot(aes(fill = smoked_last30, x = fct_relevel(Knowledge_score, c("poor knowledge", "moderate knowledge")), y = percent))+
+    geom_bar(aes(width = 0.58),position = "dodge", stat = "identity") +
+   
+   
+    theme_minimal()+
+    theme(legend.position = "bottom")+
+  labs(subtitle = "",
+       fill = "Smoked shisha",             # legend title
+       y = "Percentage",                  # y axis title
+       x = "Knowledge score")+ # x axis title
+  scale_fill_manual(                 # adding colors manually
+    values = c("Yes"= "#3B1c8C",
+               "No" = "#21908D" )) 
+
+    
+    
+    
+```
+
+
+
+
+
+```{r}
+?fct_relevel()
+```
+
+
+
+
+
